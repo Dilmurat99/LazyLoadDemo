@@ -1,10 +1,17 @@
 package com.uyghar.lazyloaddemo.ui.home
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -24,6 +31,9 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
     private var page = 1
+    private var total_pages = 1
+    private var users = ArrayList<User>()
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -52,18 +62,28 @@ class HomeFragment : Fragment() {
                     if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
                         loadMore()
                     }
+                    if (scrollY == 0) {
+
+                    }
                 }
             }
 
         })
         binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+        binding.refresher.setOnRefreshListener {
+            page = 1
+            getUser()
+        }
         getUser()
+
         return root
     }
 
     fun loadMore() {
-        page += 1
-        getUser()
+        if (page < total_pages) {
+            page += 1
+            getUser()
+        }
     }
 
     fun getUser(){
@@ -81,9 +101,14 @@ class HomeFragment : Fragment() {
                     val json_str = response.body?.string()
                     val gson = GsonBuilder().create()
                     val user_data = gson.fromJson(json_str, UserDB::class.java)
+                    if (page == 1)
+                        users = ArrayList(user_data.data)
+                    else
+                        users.addAll(ArrayList(user_data.data))
+                    total_pages = user_data.total_pages ?: 0
                     activity?.runOnUiThread {
-                        binding.recyclerView.adapter = UserAdapter(user_data)
-
+                        binding.recyclerView.adapter = UserAdapter(users)
+                        binding.refresher.isRefreshing = false
                     }
 
                 }
@@ -91,6 +116,8 @@ class HomeFragment : Fragment() {
             }
         )
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

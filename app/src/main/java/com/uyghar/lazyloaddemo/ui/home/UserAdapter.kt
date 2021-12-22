@@ -8,7 +8,7 @@ import com.uyghar.lazyloaddemo.databinding.UserItemBinding
 import com.uyghar.lazyloaddemo.model.User
 import com.uyghar.lazyloaddemo.model.UserDB
 
-class UserAdapter(val userDB: UserDB): RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+class UserAdapter(val users: ArrayList<User>): RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
     inner class UserViewHolder(val userItemBinding: UserItemBinding):RecyclerView.ViewHolder(userItemBinding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
@@ -17,13 +17,13 @@ class UserAdapter(val userDB: UserDB): RecyclerView.Adapter<UserAdapter.UserView
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        val user = userDB.data?.get(position)
+        val user = users.get(position)
         holder.userItemBinding.textName.setText(user?.first_name + " " + user?.last_name)
         holder.userItemBinding.textEmail.setText(user?.email)
         Picasso.get().load(user?.avatar).into(holder.userItemBinding.imageAvatar)
     }
 
     override fun getItemCount(): Int {
-        return userDB.data?.size ?: 0
+        return users.size
     }
 }

@@ -13,9 +13,8 @@ data class Support(
     val text: String?
 )
 data class UserDB(
-    val id: Int?,
     val page: Int?,
-    val total_page: Int?,
+    val total_pages: Int?,
     val per_page: Int?,
     val data: List<User>?,
     val support: Support?
