@@ -22,6 +22,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.uyghar.lazyloaddemo.databinding.ActivityMainBinding
+import com.uyghar.lazyloaddemo.model.User
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,21 +37,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.appBarMain.fab.setOnClickListener {
-            createNotificationChannel()
-            val intent = Intent(this, NotificationDetail::class.java)
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-            var builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_menu_camera)
-                .setContentTitle("Mawzu")
-                //.setContentText("Bu sinaq tekst")
-                .setStyle(NotificationCompat.BigTextStyle()
-                    .bigText("Bu sinaq tekst"))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-            with(NotificationManagerCompat.from(this)) {
-                // notificationId is a unique int for each notification that you must define
-                notify(1, builder.build())
-            }
+
         }
 
         setSupportActionBar(binding.appBarMain.toolbar)
@@ -67,6 +54,25 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    fun showNotification(user: User) {
+        createNotificationChannel()
+        val intent = Intent(this, NotificationDetail::class.java)
+        intent.putExtra("id", user.id)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT)
+        var builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_menu_camera)
+            .setContentTitle("${user.first_name} ${user.last_name}")
+            .setContentText(user.email)
+//            .setStyle(NotificationCompat.BigTextStyle()
+//                .bigText("Bu sinaq tekst"))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+        with(NotificationManagerCompat.from(this)) {
+            // notificationId is a unique int for each notification that you must define
+            notify(1, builder.build())
+        }
     }
 
     private fun createNotificationChannel() {

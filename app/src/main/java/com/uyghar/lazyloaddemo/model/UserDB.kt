@@ -8,6 +8,10 @@ data class User(
     val avatar: String?
 )
 
+data class UserDetail(
+    val data: User?
+)
+
 data class Support(
     val url: String?,
     val text: String?

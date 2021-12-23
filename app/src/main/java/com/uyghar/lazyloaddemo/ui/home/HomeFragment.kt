@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.gson.GsonBuilder
+import com.uyghar.lazyloaddemo.MainActivity
 import com.uyghar.lazyloaddemo.R
 import com.uyghar.lazyloaddemo.databinding.FragmentHomeBinding
 import com.uyghar.lazyloaddemo.model.User
@@ -70,6 +72,7 @@ class HomeFragment : Fragment() {
 
         })
         binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+
         binding.refresher.setOnRefreshListener {
             page = 1
             getUser()
@@ -107,7 +110,11 @@ class HomeFragment : Fragment() {
                         users.addAll(ArrayList(user_data.data))
                     total_pages = user_data.total_pages ?: 0
                     activity?.runOnUiThread {
-                        binding.recyclerView.adapter = UserAdapter(users)
+                        val adapter = UserAdapter(users)
+                        adapter.onclick = {
+                            (activity as MainActivity).showNotification(it)
+                        }
+                        binding.recyclerView.adapter = adapter
                         binding.refresher.isRefreshing = false
                     }
 
